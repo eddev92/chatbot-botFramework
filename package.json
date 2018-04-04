@@ -1,0 +1,30 @@
+{
+  "name": "edward-chatbot",
+  "version": "1.0.0",
+  "description": "chatbot-botframework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index",
+    "start:dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eddev92/chatbot-botFramework.git"
+  },
+  "author": "Edward Llanca",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eddev92/chatbot-botFramework/issues"
+  },
+  "homepage": "https://github.com/eddev92/chatbot-botFramework#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "botbuilder": "^3.14.1",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.3"
+  }
+}
