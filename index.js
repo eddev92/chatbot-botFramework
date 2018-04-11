@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const builder = require('botbuilder');
+const fs = require('fs');
+const util = require('util');
 const app = express();
 app.use(bodyParser.json());
 
@@ -66,7 +68,7 @@ function CreateSuggestions(session) {
 }
 bot.dialog('startDialog', [
     (session) => {
-        builder.Prompts.text(session, 'Soy Herbie (carrito), el bot de inspecciones vehiculares.');
+        builder.Prompts.text(session, 'Soy Herbie 🚗, el bot de inspecciones vehiculares.');
     },
     (session, results) => {
         if (results) {
@@ -122,12 +124,16 @@ bot.dialog('startDialog', [
     //     }
     // }
 ]);
-const yes = 'Sí! Comencemos'
+bot.dialog('hiUser', [
+
+]);
+const yes = 'Sí! Comencemos';
+
 bot.dialog('positiveOption', [
     (session, results) => {
 
         const noo = 'No, hagámoslo luego'
-        const msg = 'Antes de comenzar asegúrate de tener buena conexión a internet y mínimo 50% de bateria :D. ';
+        const msg = 'Antes de comenzar asegúrate de tener buena conexión a internet y mínimo 50% de bateria 😊. ';
         session.send(msg);
         builder.Prompts.choice(session,
         '¿Tienes 20 min para realizar la inspección?',
@@ -145,7 +151,7 @@ bot.dialog('positiveOption', [
 ]);
 bot.dialog('noReady', [
     (session, arg, next) => {
-        builder.Prompts.text(session, 'Por favor, es necesario que te ubiques cerca a tu vehículo. Este proceso de inspeccion requiere fotos de ciertas partes del vehículo.');
+        builder.Prompts.text(session, 'dime la hora y el dia que desees que te recuerde para continuar con tu inspeccion vehicular');
     // session.endDialog('Chau')
     }
 ])
@@ -189,14 +195,115 @@ bot.dialog('acceptTermsAndConditions', [
     (session, results) => {
         builder.Prompts.text(session, 'Genial! ¿Puedes acercarte a tu auto? Ojo con estas recomendaciones 👀');
         const msg1 = ' - Si tu auto está en un sótano sácalo a tierra para que tengas señal para hablarme.';
-        const msg2 = ' - Llévalo a una zona iluminada y de facil acceso a tomarle fotos.';
+        const msg2 = ' - Llévalo a una zona iluminada y de facil acceso para tomar fotos de buena calidad.';
         session.send(msg1);
         session.send(msg2);
-    }
-])
-// bot.dialog('afterOption', [
-//     (session, arg, next) => {
-//         builder.Prompts.text(session, 'okey, indicame la hora');
-//        // session.endDialog('Chau')
-//     }
-// ])
+    },
+    (session, results) => {
+        builder.Prompts.text(session, 'Ahora si podemos comenzar con tu Kia Sportage de placa AWG-508 🚗💪');
+        var msg = new builder.Message(session)
+        .text('¿Qué uso le das a tu auto?')
+        .suggestedActions(
+            builder.SuggestedActions.create(
+                    session, [
+                        builder.CardAction.imBack(session, "Particular", "Particular"),
+                        builder.CardAction.imBack(session, "Taxi", "Taxi"),
+                        builder.CardAction.imBack(session, "Público", "Público"),
+                        builder.CardAction.imBack(session, "Otro", "Otro")
+                    ]
+                ));
+        session.send(msg);
+    },
+    (session, results) => {
+        console.log(results, 'results KIA tipo')
+        builder.Prompts.text(session, '¿Qué consume tu auto como fuente energia? ⚡️');
+            var msg12 = new builder.Message(session)
+                .text(null)
+                .suggestedActions(
+                    builder.SuggestedActions.create(
+                            session, [
+                                builder.CardAction.imBack(session, "Gasolina", "Gasolina"),
+                                builder.CardAction.imBack(session, "Diesel", "Diesel"),
+                                builder.CardAction.imBack(session, "Gas", "Gas"),
+                                builder.CardAction.imBack(session, "Gas y gasolina", "Gas y gasolina"),
+                                builder.CardAction.imBack(session, "Eléctrico", "Eléctrico")
+                            ]
+                        ));
+                        if (results.response === 'Particular') {
+                            console.log('es un vehiculo particular')
+                        } else if (results.response === 'Taxi') {
+                            console.log('es un vehiculo de Taxi')
+                        } else if (results.response === 'Público') {
+                            console.log('es un vehiculo Público')
+                        } else {
+                            console.log('otro tipo de vehiculo')
+                        }
+                session.send(msg12);
+
+    },
+    (session, results) => {
+        if (results.response === 'Gasolina') {
+            console.log('es un vehiculo que funciona con gasolina')
+        } else if (results.response === 'Diesel') {
+            console.log('es un vehiculo q funciona con Diesel')
+        } else if (results.response === 'Gas y gasolina') {
+            console.log('es un vehiculo con Gas y gasolina')
+        } else {
+            console.log('es un vehiculo Eléctrico')
+        }
+        builder.Prompts.text(session, '¿Tiene aire acondicionado? ❄️');
+            var msg = new builder.Message(session)
+            .text(null)
+            .suggestedActions(
+                builder.SuggestedActions.create(
+                    session, [
+                        builder.CardAction.imBack(session, "Sí", "Sí"),
+                        builder.CardAction.imBack(session, "Sí, pero no funciona", "Sí, pero no funciona"),
+                        builder.CardAction.imBack(session, "No", "No"),
+                    ]
+                )
+            )
+            session.send(msg)
+    },
+    (session, results) => {
+        console.log(results.response)
+        fs.readFile('./images/tarjeta_propiedad.jpg', function (err, data) {
+            var contentType = 'image/jpg';
+            var base64 = Buffer.from(data).toString('base64');
+            var title = 'Perfecto, ahora comenzemos con las fotos 📸';
+            var msg = new builder.Message(session)
+                .addAttachment({
+                    contentUrl: util.format('data:%s;base64,%s', contentType, base64),
+                    contentType: contentType,
+                    name: 'tarjeta_propiedad_example.png'
+                });
+            session.send(title);
+            session.send(msg);
+            builder.Prompts.text(session, 'Envíame una foto de la cara de la tarjeta de propiedad del auto, luce así ☝️')
+        });
+    },
+    (session, results) => {
+        console.log(results, 'carga de foto')
+        // builder.Prompts.text(session, 'Y también de la parte posterior, por favor 😊');
+        var msg = session.message;
+        if (msg.attachments.length) {
+            var attachment = msg.attachments[0];
+            var fileDownload = checkRequiresToken(msg)
+                ? requestWithToken(attachment.contentUrl)
+                : request(attachment.contentUrl);
+
+            fileDownload.then(
+                function (response) {
+                    var reply = new builder.Message(session)
+                        .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
+                    session.send(reply);
+
+                }).catch(function (err) {
+                    console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
+                });
+            }
+        },
+        (session, results) => {
+            console.log(results)
+        }
+]);
